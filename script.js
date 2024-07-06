@@ -60,12 +60,12 @@ function handleSubmit(event) {
     if (xhr.status === 200) {
       responseMessage.style.display = 'block';
       responseMessage.style.color = 'green';
-      responseMessage.textContent = 'Your message has been sent successfully!';
+      responseMessage.textContent = translate('responseSuccess');
       form.reset(); // Formu sıfırla
     } else {
       responseMessage.style.display = 'block';
       responseMessage.style.color = 'red';
-      responseMessage.textContent = 'Failed to send your message. Please try again.';
+      responseMessage.textContent = translate('responseFailure');
     }
   };
   xhr.send(formData);
@@ -73,4 +73,30 @@ function handleSubmit(event) {
   return false;
 }
 
-document.getElementById('contactForm').addEventListener('submit', handleSubmit);
+// Çoklu dil desteği
+let translations = {};
+
+function setLanguage(language) {
+  fetch(`./${language}.json`)
+    .then(response => response.json())
+    .then(data => {
+      translations = data;
+      translatePage();
+    });
+}
+
+function translatePage() {
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    element.textContent = translations[key];
+  });
+}
+
+function translate(key) {
+  return translations[key] || key;
+}
+
+// Sayfa yüklendiğinde varsayılan dili ayarla
+document.addEventListener("DOMContentLoaded", function() {
+  setLanguage('en'); // Varsayılan dil İngilizce olarak ayarlandı
+});

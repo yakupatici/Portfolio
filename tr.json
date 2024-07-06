@@ -1,0 +1,9 @@
+{
+    "contactUs": "Bize Ulaşın",
+    "name": "İsim",
+    "email": "E-posta",
+    "message": "Mesaj",
+    "sendMessage": "Mesaj Gönder",
+    "responseSuccess": "Mesajınız başarıyla gönderildi!",
+    "responseFailure": "Mesajınız gönderilemedi. Lütfen tekrar deneyin."
+  }

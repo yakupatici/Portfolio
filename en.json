@@ -1,0 +1,9 @@
+{
+    "contactUs": "Contact Us",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "sendMessage": "Send Message",
+    "responseSuccess": "Your message has been sent successfully!",
+    "responseFailure": "Failed to send your message. Please try again."
+  }
