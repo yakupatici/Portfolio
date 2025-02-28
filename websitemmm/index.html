@@ -189,9 +189,24 @@
                 </div>
                 <div class="github-activity">
                     <h2>My GitHub Contributions</h2>
+                    <div class="github-profile-header">
+                        <div class="github-profile-info">
+                            <svg class="github-avatar" viewBox="0 0 16 16" version="1.1" width="40" height="40" aria-hidden="true">
+                                <path fill="#ffffff" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                            </svg>
+                            <span class="github-username">@yakupatici</span>
+                        </div>
+                        <a href="https://github.com/yakupatici" target="_blank" class="github-view-btn">
+                            View on GitHub <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
                     <div class="calendar">
                         <!-- Loading stuff -->
-                        Loading the data just for you.
+                        <p>Loading GitHub contributions data...</p>
+                        <noscript>
+                            <p>JavaScript is required to view GitHub contributions.</p>
+                            <a href="https://github.com/yakupatici" target="_blank" class="more-projects-link">View my GitHub Profile</a>
+                        </noscript>
                     </div>
                 </div>
             </div>
@@ -249,7 +264,133 @@
 
         <!-- Initialize GitHub Calendar -->
         <script>
-            GitHubCalendar(".calendar", "yakupatici", { responsive: true });
+            document.addEventListener('DOMContentLoaded', function() {
+                // Try to load GitHub Calendar
+                try {
+                    // First make sure the elements exist
+                    const calendarElement = document.querySelector('.calendar');
+                    if (!calendarElement) {
+                        console.error("Calendar element not found");
+                        return;
+                    }
+                    
+                    // Show loading message
+                    calendarElement.innerHTML = '<p>Loading GitHub contributions data...</p>';
+                    
+                    // Add a timeout to handle cases where the calendar might hang
+                    const calendarTimeout = setTimeout(function() {
+                        console.warn("GitHub calendar load timed out");
+                        calendarElement.innerHTML = 
+                            '<p>Could not load GitHub contributions in a reasonable time. Please check your internet connection or try again later.</p>' +
+                            '<a href="https://github.com/yakupatici" target="_blank" class="more-projects-link">View my GitHub Profile</a>';
+                    }, 15000); // 15 seconds timeout
+                    
+                    // Initialize GitHub Calendar
+                    GitHubCalendar(".calendar", "yakupatici", { 
+                        responsive: true,
+                        tooltips: true,
+                        global_stats: false, // Disable global stats
+                        summary_text: '{{count}} contributions in the last year',
+                        cache: 86400, // 24 hours cache
+                        theme: 'dark'
+                    }).then(function(res) {
+                        // Clear the timeout since we loaded successfully
+                        clearTimeout(calendarTimeout);
+                        
+                        console.log("GitHub calendar loaded successfully");
+                        
+                        // Additional styling after calendar loads
+                        setTimeout(function() {
+                            const calendarSvg = document.querySelector('.js-calendar-graph-svg');
+                            if (calendarSvg) {
+                                calendarSvg.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+                                calendarSvg.style.borderRadius = '6px';
+                                calendarSvg.style.padding = '8px';
+                            }
+                            
+                            // Make text elements more visible
+                            const textElements = document.querySelectorAll('.calendar-graph text');
+                            textElements.forEach(function(text) {
+                                text.style.fill = '#ffffff';
+                            });
+                            
+                            // SUPER AGGRESSIVELY remove any unwanted text elements from the calendar
+                            const unwantedTexts = ['Rock', 'Hard', 'Place'];
+                            
+                            // Method 1: Hide text elements containing unwanted text
+                            document.querySelectorAll('text').forEach(function(textElement) {
+                                const content = textElement.textContent.trim();
+                                if (unwantedTexts.some(text => content.includes(text))) {
+                                    textElement.style.display = 'none';
+                                    textElement.textContent = '';
+                                }
+                            });
+                            
+                            // Method 2: Remove all text nodes containing unwanted text
+                            function removeTextNodes(element) {
+                                if (!element) return;
+                                
+                                // Check text nodes
+                                for (let i = 0; i < element.childNodes.length; i++) {
+                                    const node = element.childNodes[i];
+                                    
+                                    // If it's a text node and contains unwanted text
+                                    if (node.nodeType === 3) {
+                                        const content = node.textContent.trim();
+                                        if (unwantedTexts.some(text => content.includes(text))) {
+                                            element.removeChild(node);
+                                            i--;
+                                        }
+                                    } 
+                                    // If it's an element node, recurse
+                                    else if (node.nodeType === 1) {
+                                        removeTextNodes(node);
+                                    }
+                                }
+                            }
+                            
+                            // Apply to the entire document
+                            removeTextNodes(document.body);
+                            
+                            // Method 3: Direct DOM manipulation for specific elements
+                            document.querySelectorAll('.contrib-legend .legend li').forEach(function(item) {
+                                const nextSibling = item.nextSibling;
+                                if (nextSibling && nextSibling.nodeType === 3) {
+                                    const content = nextSibling.textContent.trim();
+                                    if (unwantedTexts.some(text => content.includes(text))) {
+                                        nextSibling.textContent = '';
+                                    }
+                                }
+                            });
+                            
+                            // Method 5: Add a style element to hide unwanted text
+                            const style = document.createElement('style');
+                            style.textContent = `
+                                .contrib-legend text:contains('Rock'), 
+                                .contrib-legend text:contains('Hard'), 
+                                .contrib-legend text:contains('Place') { display: none !important; }
+                            `;
+                            document.head.appendChild(style);
+                        }, 100);
+                    }).catch(function(error) {
+                        // Clear the timeout since we got a response (even if it's an error)
+                        clearTimeout(calendarTimeout);
+                        
+                        console.error("Error loading GitHub calendar:", error);
+                        document.querySelector('.calendar').innerHTML = 
+                            '<p>Could not load GitHub contributions. Please check your internet connection or try again later.</p>' +
+                            '<a href="https://github.com/yakupatici" target="_blank" class="more-projects-link">View my GitHub Profile</a>';
+                    });
+                } catch (e) {
+                    console.error("Error initializing GitHub calendar:", e);
+                    const calendarElement = document.querySelector('.calendar');
+                    if (calendarElement) {
+                        calendarElement.innerHTML = 
+                            '<p>Could not load GitHub contributions. Please check your internet connection or try again later.</p>' +
+                            '<a href="https://github.com/yakupatici" target="_blank" class="more-projects-link">View my GitHub Profile</a>';
+                    }
+                }
+            });
         </script>
 
         <script src="js/script.js"></script>
